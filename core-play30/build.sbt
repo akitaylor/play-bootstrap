@@ -61,6 +61,6 @@ pomIncludeRepository := { _ => false }
 credentials += Credentials(Path.userHome / ".sbt" / "sonatype.credentials")
 
 publishConfiguration := publishConfiguration.value.withOverwrite(isSnapshot.value)
-com.typesafe.sbt.pgp.PgpKeys.publishSignedConfiguration := com.typesafe.sbt.pgp.PgpKeys.publishSignedConfiguration.value.withOverwrite(isSnapshot.value)
+PgpKeys.publishSignedConfiguration := PgpKeys.publishSignedConfiguration.value.withOverwrite(isSnapshot.value)
 publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(isSnapshot.value)
-com.typesafe.sbt.pgp.PgpKeys.publishLocalSignedConfiguration := com.typesafe.sbt.pgp.PgpKeys.publishLocalSignedConfiguration.value.withOverwrite(isSnapshot.value)
+PgpKeys.publishLocalSignedConfiguration := PgpKeys.publishLocalSignedConfiguration.value.withOverwrite(isSnapshot.value)

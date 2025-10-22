@@ -1,4 +1,4 @@
-import scalariform.formatter.preferences._
+//import scalariform.formatter.preferences._
 
 name := """play-bootstrap-core"""
 
@@ -17,13 +17,12 @@ libraryDependencies := libraryDependencies.value.filterNot(m => m.name == "twirl
   playCore % "provided"
 )
 
-scalariformPreferences := scalariformPreferences.value
-  .setPreference(AlignSingleLineCaseStatements, true)
-  .setPreference(DoubleIndentConstructorArguments, true)
-  .setPreference(DanglingCloseParenthesis, Preserve)
+//scalariformPreferences := scalariformPreferences.value
+//  .setPreference(AlignSingleLineCaseStatements, true)
+//  .setPreference(DoubleIndentConstructorArguments, true)
+//  .setPreference(DanglingCloseParenthesis, Preserve)
 
-
-PlayKeys.playOmnidoc := false
+//PlayKeys.playOmnidoc := false
 
 //*******************************
 // Maven settings
@@ -61,6 +60,6 @@ pomIncludeRepository := { _ => false }
 credentials += Credentials(Path.userHome / ".sbt" / "sonatype.credentials")
 
 publishConfiguration := publishConfiguration.value.withOverwrite(isSnapshot.value)
-com.typesafe.sbt.pgp.PgpKeys.publishSignedConfiguration := com.typesafe.sbt.pgp.PgpKeys.publishSignedConfiguration.value.withOverwrite(isSnapshot.value)
+PgpKeys.publishSignedConfiguration := PgpKeys.publishSignedConfiguration.value.withOverwrite(isSnapshot.value)
 publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(isSnapshot.value)
-com.typesafe.sbt.pgp.PgpKeys.publishLocalSignedConfiguration := com.typesafe.sbt.pgp.PgpKeys.publishLocalSignedConfiguration.value.withOverwrite(isSnapshot.value)
+PgpKeys.publishLocalSignedConfiguration := PgpKeys.publishLocalSignedConfiguration.value.withOverwrite(isSnapshot.value)

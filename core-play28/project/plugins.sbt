@@ -3,8 +3,8 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.9.7")
 
 // web plugins
 
-addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.2")
+//addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.2")
 
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.4")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.12.2")
 
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.0")
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
