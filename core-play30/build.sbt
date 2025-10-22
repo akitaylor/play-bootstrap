@@ -1,8 +1,8 @@
-import scalariform.formatter.preferences._
+//import scalariform.formatter.preferences._
 
 name := """play-bootstrap-core"""
 
-version := "1.7.0-P28"
+version := "1.7.0-P30"
 
 scalaVersion := "2.13.17"
 
@@ -11,19 +11,19 @@ crossScalaVersions := Seq("2.13.17", "3.3.6")
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala).disablePlugins(PlayFilters, PlayLogback, PlayAkkaHttpServer)
+lazy val root = (project in file(".")).enablePlugins(PlayScala).disablePlugins(PlayFilters, PlayLogback, PlayPekkoHttpServer)
 
 libraryDependencies := libraryDependencies.value.filterNot(m => m.name == "twirl-api" || m.name == "play-server") ++ Seq(
   playCore % "provided"
 )
 
-scalariformPreferences := scalariformPreferences.value
-  .setPreference(AlignSingleLineCaseStatements, true)
-  .setPreference(DoubleIndentConstructorArguments, true)
-  .setPreference(DanglingCloseParenthesis, Preserve)
+//scalariformPreferences := scalariformPreferences.value
+//  .setPreference(AlignSingleLineCaseStatements, true)
+//  .setPreference(DoubleIndentConstructorArguments, true)
+//  .setPreference(DanglingCloseParenthesis, Preserve)
 
 
-PlayKeys.playOmnidoc := false
+//PlayKeys.playOmnidoc := false
 
 //*******************************
 // Maven settings
@@ -54,7 +54,7 @@ publishTo := {
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
-publishArtifact in Test := false
+Test / publishArtifact := false
 
 pomIncludeRepository := { _ => false }
 
