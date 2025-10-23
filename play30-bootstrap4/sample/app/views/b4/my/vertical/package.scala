@@ -17,10 +17,10 @@ package object vertical {
     override val formClass = "form-my-vertical"
     /* Renders the corresponding template of the field constructor */
     override def apply(fieldInfo: B4FieldInfo, inputHtml: Html)(implicit msgsProv: MessagesProvider) =
-      bsFieldConstructor(fieldInfo, inputHtml)(this, msgsProv)
+      bsFieldConstructor(fieldInfo, inputHtml)(using this, msgsProv)
     /* Renders the corresponding template of the form group */
     override def apply(contentHtml: Html, argsMap: Map[Symbol, Any])(implicit msgsProv: MessagesProvider) =
-      bsFormGroup(contentHtml, argsMap)(msgsProv)
+      bsFormGroup(contentHtml, argsMap)(using msgsProv)
   }
 
   /** Creates a new VerticalFieldConstructor to use for specific forms or scopes (don't use it as a default one). If a
@@ -38,9 +38,12 @@ package object vertical {
     * *********************************************************************************************************************************
     */
   def form(action: Call, args: (Symbol, Any)*)(body: MyVerticalFieldConstructor => Html) =
-    views.html.b4.form(action, args*)(body(fieldConstructorSpecific))(fieldConstructorSpecific)
+    views.html.b4.form(action, args*)(body(fieldConstructorSpecific))(using fieldConstructorSpecific)
   def formCSRF(action: Call, args: (Symbol, Any)*)(body: MyVerticalFieldConstructor => Html)(implicit
     request: RequestHeader
   ) =
-    views.html.b4.formCSRF(action, inner(args)*)(body(fieldConstructorSpecific))(fieldConstructorSpecific, request)
+    views.html.b4.formCSRF(action, inner(args)*)(body(fieldConstructorSpecific))(using
+      fieldConstructorSpecific,
+      request
+    )
 }

@@ -1,18 +1,14 @@
-/**
- * Copyright 2019 Adrian Hurtado (adrianhurt)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/** Copyright 2019 Adrian Hurtado (adrianhurt)
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+  * the License. You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+  * specific language governing permissions and limitations under the License.
+  */
 package views.html.b4
 
 import views.html.b4
@@ -21,42 +17,47 @@ import org.specs2.mutable.Specification
 import views.html.helper.FieldConstructor
 import play.api.data.Forms._
 import play.api.data._
-import play.api.{ Configuration, Environment }
+import play.api.{Configuration, Environment}
 import play.api.http.HttpConfiguration
-import play.api.i18n.{ DefaultLangsProvider, DefaultMessagesApiProvider, MessagesProvider }
+import play.api.i18n.{DefaultLangsProvider, DefaultMessagesApiProvider, MessagesProvider}
 import play.twirl.api.Html
 import play.api.mvc.Call
 
 class FieldConstructorsSpec extends Specification {
 
   val environment = Environment.simple()
-  val conf = Configuration.reference
-  val langs = new DefaultLangsProvider(conf).get
+  val conf        = Configuration.reference
+  val langs       = new DefaultLangsProvider(conf).get
 
   val httpConfiguration = HttpConfiguration.fromConfiguration(conf, environment)
-  val messagesApi = new DefaultMessagesApiProvider(environment, conf, langs, httpConfiguration).get
+  val messagesApi       = new DefaultMessagesApiProvider(environment, conf, langs, httpConfiguration).get
   implicit val msgsProv: MessagesProvider = messagesApi.preferred(Seq.empty)
 
-  def testFielConstructor(fcDefault: B4FieldConstructor, fcWithCustomFields: B4FieldConstructor, fcWithFeedbackTooltip: B4FieldConstructor) = {
-    implicit val fc = fcDefault
-    val testInputString = "<input>"
+  def testFielConstructor(
+    fcDefault: B4FieldConstructor,
+    fcWithCustomFields: B4FieldConstructor,
+    fcWithFeedbackTooltip: B4FieldConstructor
+  ) = {
+    implicit val fc                                   = fcDefault
+    val testInputString                               = "<input>"
     def testInput(field: Field, args: (Symbol, Any)*) =
       b4.inputFormGroup(field, true, args) { _ => Html(testInputString) }
 
-    val fooForm = Form(single("foo" -> Forms.nonEmptyText(maxLength = 8)))
+    val fooForm  = Form(single("foo" -> Forms.nonEmptyText(maxLength = 8)))
     val fooField = fooForm("foo")
 
-    val simpleInput = testInput(fooField).body
-    def simpleInputWithArgs(args: (Symbol, Any)*)(implicit fc: B4FieldConstructor) = b4.text(fooField, args: _*).body
-    def simpleInputWithError(args: (Symbol, Any)*)(implicit fc: B4FieldConstructor) = b4.text(fooForm.withError("foo", "test-error-0").withError("foo", "test-error-1")("foo"), args: _*).body
+    val simpleInput                                                                 = testInput(fooField).body
+    def simpleInputWithArgs(args: (Symbol, Any)*)(implicit fc: B4FieldConstructor)  = b4.text(fooField, args: _*).body
+    def simpleInputWithError(args: (Symbol, Any)*)(implicit fc: B4FieldConstructor) =
+      b4.text(fooForm.withError("foo", "test-error-0").withError("foo", "test-error-1")("foo"), args: _*).body
 
     val fieldsetExtraClasses = fc match {
       case hfc: b4.horizontal.HorizontalFieldConstructor => " row"
-      case _ => ""
+      case _                                             => ""
     }
     val labelExtraClasses = fc match {
       case hfc: b4.horizontal.HorizontalFieldConstructor => "col-form-label " + hfc.colLabel
-      case _ => ""
+      case _                                             => ""
     }
 
     "have the basic structure" in {
@@ -78,15 +79,22 @@ class FieldConstructorsSpec extends Specification {
     }
 
     "allow setting extra classes form-group" in {
-      clean(simpleInputWithArgs(Symbol("_class") -> "extra_class another_class")) must contain(s"""<div class="form-group$fieldsetExtraClasses extra_class another_class" """)
+      clean(simpleInputWithArgs(Symbol("_class") -> "extra_class another_class")) must contain(
+        s"""<div class="form-group$fieldsetExtraClasses extra_class another_class" """
+      )
     }
 
     "render the label" in {
-      clean(simpleInputWithArgs(Symbol("_label") -> "theLabel")) must contain(if (labelExtraClasses == "") """<label for="foo">theLabel</label>""" else s"""<label class="$labelExtraClasses" for="foo">theLabel</label>""")
+      clean(simpleInputWithArgs(Symbol("_label") -> "theLabel")) must contain(
+        if (labelExtraClasses == "") """<label for="foo">theLabel</label>"""
+        else s"""<label class="$labelExtraClasses" for="foo">theLabel</label>"""
+      )
     }
 
     "allow hide the label" in {
-      val labelString = if (labelExtraClasses == "") """<label class="sr-only" for="foo">theLabel</label>""" else s"""<label class="$labelExtraClasses sr-only" for="foo">theLabel</label>"""
+      val labelString =
+        if (labelExtraClasses == "") """<label class="sr-only" for="foo">theLabel</label>"""
+        else s"""<label class="$labelExtraClasses sr-only" for="foo">theLabel</label>"""
       clean(simpleInputWithArgs(Symbol("_label") -> "theLabel", Symbol("_hideLabel") -> true)) must contain(labelString)
       clean(simpleInputWithArgs(Symbol("_hiddenLabel") -> "theLabel")) must contain(labelString)
     }
@@ -116,10 +124,18 @@ class FieldConstructorsSpec extends Specification {
     }
 
     "allow showing help info" in {
-      simpleInputWithArgs(Symbol("_help") -> "test-help") must contain("<small id=\"foo_info_0\" class=\"form-text text-muted\">test-help</small>")
-      simpleInputWithArgs(Symbol("_success") -> "test-help") must contain("<div id=\"foo_feedback_0\" class=\"valid-feedback\">test-help</div>")
-      simpleInputWithArgs(Symbol("_warning") -> "test-help") must contain("<div id=\"foo_feedback_0\" class=\"warning-feedback\">test-help</div>")
-      simpleInputWithArgs(Symbol("_error") -> "test-help") must contain("<div id=\"foo_error_0\" class=\"invalid-feedback\">test-help</div>")
+      simpleInputWithArgs(Symbol("_help") -> "test-help") must contain(
+        "<small id=\"foo_info_0\" class=\"form-text text-muted\">test-help</small>"
+      )
+      simpleInputWithArgs(Symbol("_success") -> "test-help") must contain(
+        "<div id=\"foo_feedback_0\" class=\"valid-feedback\">test-help</div>"
+      )
+      simpleInputWithArgs(Symbol("_warning") -> "test-help") must contain(
+        "<div id=\"foo_feedback_0\" class=\"warning-feedback\">test-help</div>"
+      )
+      simpleInputWithArgs(Symbol("_error") -> "test-help") must contain(
+        "<div id=\"foo_error_0\" class=\"invalid-feedback\">test-help</div>"
+      )
     }
 
     "allow rendering erros and hide constraints when help info is present" in {
@@ -141,8 +157,8 @@ class FieldConstructorsSpec extends Specification {
       testStatus("success", Symbol("_success") -> "test-help")
       testStatus("warning", Symbol("_warning") -> true)
       testStatus("warning", Symbol("_warning") -> "test-help")
-      testStatus("danger", Symbol("_error") -> true)
-      testStatus("danger", Symbol("_error") -> "test-help")
+      testStatus("danger", Symbol("_error")    -> true)
+      testStatus("danger", Symbol("_error")    -> "test-help")
     }
 
     "render aria attributes" in {
@@ -172,12 +188,12 @@ class FieldConstructorsSpec extends Specification {
       val customFile2 = b4.file(fooField)(fcWithCustomFields, msgsProv).body.trim
       customFile1 must be equalTo customFile2
 
-      val boolField = Form(single("foo" -> Forms.boolean))("foo")
+      val boolField       = Form(single("foo" -> Forms.boolean))("foo")
       val customCheckbox1 = b4.checkbox(boolField, Symbol("_custom") -> true, Symbol("_text") -> "theText").body.trim
       val customCheckbox2 = b4.checkbox(boolField, Symbol("_text") -> "theText")(fcWithCustomFields, msgsProv).body.trim
       customCheckbox1 must be equalTo customCheckbox2
 
-      val fruits = Seq("A" -> "Apples", "P" -> "Pears", "B" -> "Bananas")
+      val fruits       = Seq("A" -> "Apples", "P" -> "Pears", "B" -> "Bananas")
       val customRadio1 = b4.radio(fooField, fruits, Symbol("_custom") -> true).body.trim
       val customRadio2 = b4.radio(fooField, fruits)(fcWithCustomFields, msgsProv).body.trim
       customRadio1 must be equalTo customRadio2
@@ -203,10 +219,11 @@ class FieldConstructorsSpec extends Specification {
   }
 
   "horizontal field constructor" should {
-    val (colLabel, colInput) = ("col-md-2", "col-md-10")
+    val (colLabel, colInput)                = ("col-md-2", "col-md-10")
     implicit val horizontalFieldConstructor = new b4.horizontal.HorizontalFieldConstructor(colLabel, colInput)
-    val fcWithCustomFields = new b4.horizontal.HorizontalFieldConstructor(colLabel, colInput, isCustom = true)
-    val fcWithFeedbackTooltip = new b4.horizontal.HorizontalFieldConstructor(colLabel, colInput, withFeedbackTooltip = true)
+    val fcWithCustomFields    = new b4.horizontal.HorizontalFieldConstructor(colLabel, colInput, isCustom = true)
+    val fcWithFeedbackTooltip =
+      new b4.horizontal.HorizontalFieldConstructor(colLabel, colInput, withFeedbackTooltip = true)
 
     testFielConstructor(horizontalFieldConstructor, fcWithCustomFields, fcWithFeedbackTooltip)
 
@@ -219,15 +236,15 @@ class FieldConstructorsSpec extends Specification {
 
   "vertical field constructor" should {
     implicit val verticalFieldConstructor = new b4.vertical.VerticalFieldConstructor()
-    val fcWithCustomFields = new b4.vertical.VerticalFieldConstructor(isCustom = true)
-    val fcWithFeedbackTooltip = new b4.vertical.VerticalFieldConstructor(withFeedbackTooltip = true)
+    val fcWithCustomFields                = new b4.vertical.VerticalFieldConstructor(isCustom = true)
+    val fcWithFeedbackTooltip             = new b4.vertical.VerticalFieldConstructor(withFeedbackTooltip = true)
     testFielConstructor(verticalFieldConstructor, fcWithCustomFields, fcWithFeedbackTooltip)
   }
 
   "inline field constructor" should {
     implicit val inlineFieldConstructor = new b4.inline.InlineFieldConstructor()
-    val fcWithCustomFields = new b4.inline.InlineFieldConstructor(isCustom = true)
-    val fcWithFeedbackTooltip = new b4.inline.InlineFieldConstructor(withFeedbackTooltip = true)
+    val fcWithCustomFields              = new b4.inline.InlineFieldConstructor(isCustom = true)
+    val fcWithFeedbackTooltip           = new b4.inline.InlineFieldConstructor(withFeedbackTooltip = true)
     testFielConstructor(inlineFieldConstructor, fcWithCustomFields, fcWithFeedbackTooltip)
   }
 
