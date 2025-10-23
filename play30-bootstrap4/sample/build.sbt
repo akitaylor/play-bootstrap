@@ -1,5 +1,3 @@
-//import scalariform.formatter.preferences._
-
 name := """play-bootstrap-sample"""
 
 version := "1.7.0"
@@ -21,9 +19,4 @@ libraryDependencies ++= Seq(
   "org.webjars" % "bootstrap-datepicker" % "1.10.0" exclude("org.webjars", "bootstrap")
 )
 
-//scalariformPreferences := scalariformPreferences.value
-//  .setPreference(AlignSingleLineCaseStatements, true)
-//  .setPreference(DoubleIndentConstructorArguments, true)
-//  .setPreference(DanglingCloseParenthesis, Preserve)
-
-//PlayKeys.playOmnidoc := false
+scalafmtOnCompile := true

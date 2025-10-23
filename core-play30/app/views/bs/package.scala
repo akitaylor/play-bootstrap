@@ -1,32 +1,27 @@
-/**
- * Copyright 2019 Adrian Hurtado (adrianhurt)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/** Copyright 2019 Adrian Hurtado (adrianhurt)
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+  * the License. You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+  * specific language governing permissions and limitations under the License.
+  */
 package views.html
 
 package object bs {
 
-  import play.api.data.{ Field, FormError }
+  import play.api.data.{Field, FormError}
   import play.twirl.api.Html
   import play.api.i18n.MessagesProvider
   import play.api.templates.PlayMagic.translate
   import bs.ArgsMap.isTrue
 
-  /**
-   * Class with relevant variables for a field to pass it to the helper and field constructor
-   * - args: list of available arguments for the helper and field constructor
-   */
+  /** Class with relevant variables for a field to pass it to the helper and field constructor
+    *   - args: list of available arguments for the helper and field constructor
+    */
   class BSFieldInfo(field: Field, args: Seq[(Symbol, Any)], val msgsProv: MessagesProvider) {
 
     /* A map with the args to work easily with them */
@@ -63,9 +58,8 @@ package object bs {
 
   }
 
-  /**
-   * Companion object for class BSFieldInfo
-   */
+  /** Companion object for class BSFieldInfo
+    */
   object BSFieldInfo {
 
     def apply(field: Field, args: Seq[(Symbol, Any)], msgsProv: MessagesProvider): BSFieldInfo = {
@@ -74,32 +68,54 @@ package object bs {
 
     /* List with every error */
     def errors(maybeField: Option[Field], argsMap: Map[Symbol, Any], msgsProv: MessagesProvider): Seq[Any] = {
-      argsMap.get(Symbol("_error")).filter(!_.isInstanceOf[Boolean]).map {
-        _ match {
-          case Some(FormError(_, message, args)) => Seq(msgsProv.messages(message, args.map(a => translate(a)(msgsProv)): _*))
-          case FormError(_, message, args)       => Seq(msgsProv.messages(message, args.map(a => translate(a)(msgsProv)): _*))
-          case message                           => Seq(translate(message)(msgsProv))
+      argsMap
+        .get(Symbol("_error"))
+        .filter(!_.isInstanceOf[Boolean])
+        .map {
+          _ match {
+            case Some(FormError(_, message, args)) =>
+              Seq(msgsProv.messages(message, args.map(a => translate(a)(msgsProv)): _*))
+            case FormError(_, message, args) =>
+              Seq(msgsProv.messages(message, args.map(a => translate(a)(msgsProv)): _*))
+            case message => Seq(translate(message)(msgsProv))
+          }
         }
-      }.getOrElse {
-        maybeField.filter(_ => argsMap.get(Symbol("_showErrors")) != Some(false)).map { field =>
-          field.errors.map { e => msgsProv.messages(e.message, e.args.map(a => translate(a)(msgsProv)): _*) }
-        }.getOrElse(Nil)
-      }
+        .getOrElse {
+          maybeField
+            .filter(_ => argsMap.get(Symbol("_showErrors")) != Some(false))
+            .map { field =>
+              field.errors.map { e => msgsProv.messages(e.message, e.args.map(a => translate(a)(msgsProv)): _*) }
+            }
+            .getOrElse(Nil)
+        }
     }
 
     /* List with every "feedback info" except "errors" */
     def feedbackInfosButErrors(argsMap: Map[Symbol, Any], msgsProv: MessagesProvider): Seq[Any] = {
-      argsMap.get(Symbol("_warning")).filter(!_.isInstanceOf[Boolean]).map(m => Seq(translate(m)(msgsProv))).getOrElse(
-        argsMap.get(Symbol("_success")).filter(!_.isInstanceOf[Boolean]).map(m => Seq(translate(m)(msgsProv))).getOrElse(Nil)
-      )
+      argsMap
+        .get(Symbol("_warning"))
+        .filter(!_.isInstanceOf[Boolean])
+        .map(m => Seq(translate(m)(msgsProv)))
+        .getOrElse(
+          argsMap
+            .get(Symbol("_success"))
+            .filter(!_.isInstanceOf[Boolean])
+            .map(m => Seq(translate(m)(msgsProv)))
+            .getOrElse(Nil)
+        )
     }
 
     /* List with every "help info", i.e. a help text or constraints */
     def helpInfos(maybeField: Option[Field], argsMap: Map[Symbol, Any], msgsProv: MessagesProvider): Seq[Any] = {
       argsMap.get(Symbol("_help")).map(m => Seq(translate(m)(msgsProv))).getOrElse {
-        maybeField.filter(_ => argsMap.get(Symbol("_showConstraints")) == Some(true)).map { field =>
-          field.constraints.map(c => msgsProv.messages(c._1, c._2.map(a => translate(a)(msgsProv)): _*)) ++ field.format.map(f => msgsProv.messages(f._1, f._2.map(a => translate(a)(msgsProv)): _*))
-        }.getOrElse(Nil)
+        maybeField
+          .filter(_ => argsMap.get(Symbol("_showConstraints")) == Some(true))
+          .map { field =>
+            field.constraints.map(c =>
+              msgsProv.messages(c._1, c._2.map(a => translate(a)(msgsProv)): _*)
+            ) ++ field.format.map(f => msgsProv.messages(f._1, f._2.map(a => translate(a)(msgsProv)): _*))
+          }
+          .getOrElse(Nil)
       }
     }
 
@@ -117,27 +133,37 @@ package object bs {
 
     /* Generates automatically the input attributes for the constraints of a field */
     def constraintsArgs(field: Field, msgsProv: MessagesProvider): Seq[(Symbol, Any)] = field.constraints.map {
-      case ("constraint.required", params)            => Some((Symbol("required") -> true))
-      case ("constraint.min", params: Seq[Any])       => Some((Symbol("min") -> msgsProv.messages(params.head.toString)))
-      case ("constraint.max", params: Seq[Any])       => Some((Symbol("max") -> msgsProv.messages(params.head.toString)))
-      case ("constraint.minLength", params: Seq[Any]) => Some((Symbol("minlength") -> msgsProv.messages(params.head.toString)))
-      case ("constraint.maxLength", params: Seq[Any]) => Some((Symbol("maxlength") -> msgsProv.messages(params.head.toString)))
-      case ("constraint.pattern", params: Seq[Any]) => params.head match {
-        case str: String        => Some((Symbol("pattern") -> msgsProv.messages(str)))
-        case func: Function0[_] => Some((Symbol("pattern") -> msgsProv.messages(func.asInstanceOf[() => scala.util.matching.Regex]().toString)))
-        case _                  => None
-      }
+      case ("constraint.required", params)      => Some((Symbol("required") -> true))
+      case ("constraint.min", params: Seq[Any]) => Some((Symbol("min") -> msgsProv.messages(params.head.toString)))
+      case ("constraint.max", params: Seq[Any]) => Some((Symbol("max") -> msgsProv.messages(params.head.toString)))
+      case ("constraint.minLength", params: Seq[Any]) =>
+        Some((Symbol("minlength") -> msgsProv.messages(params.head.toString)))
+      case ("constraint.maxLength", params: Seq[Any]) =>
+        Some((Symbol("maxlength") -> msgsProv.messages(params.head.toString)))
+      case ("constraint.pattern", params: Seq[Any]) =>
+        params.head match {
+          case str: String        => Some((Symbol("pattern") -> msgsProv.messages(str)))
+          case func: Function0[_] =>
+            Some(
+              (Symbol("pattern") -> msgsProv.messages(func.asInstanceOf[() => scala.util.matching.Regex]().toString))
+            )
+          case _ => None
+        }
       case _ => None
     }.flatten
   }
 
-  /**
-   * Class with relevant variables for the global information of a multifield
-   * - fields: list of Fields
-   * - globalArguments: list of available arguments for the global helper
-   * - fieldsArguments: list of available arguments for every specific field
-   */
-  class BSMultifieldInfo(fields: Seq[Field], globalArguments: Seq[(Symbol, Any)], fieldsArguments: Seq[(Symbol, Any)], val msgsProv: MessagesProvider) {
+  /** Class with relevant variables for the global information of a multifield
+    *   - fields: list of Fields
+    *   - globalArguments: list of available arguments for the global helper
+    *   - fieldsArguments: list of available arguments for every specific field
+    */
+  class BSMultifieldInfo(
+    fields: Seq[Field],
+    globalArguments: Seq[(Symbol, Any)],
+    fieldsArguments: Seq[(Symbol, Any)],
+    val msgsProv: MessagesProvider
+  ) {
 
     /* A map with the args to work easily with them. The '_help is removed because the helper freeFormFieldormField will add it */
     val argsMap: Map[Symbol, Any] = Args.withoutNones(fieldsArguments ++ globalArguments).toMap
@@ -164,18 +190,21 @@ package object bs {
     lazy val fieldsArgs = fieldsArguments
   }
 
-  /**
-   * Companion object for class BSMultifieldInfo
-   */
+  /** Companion object for class BSMultifieldInfo
+    */
   object BSMultifieldInfo {
-    def apply(fields: Seq[Field], globalArguments: Seq[(Symbol, Any)], fieldsArguments: Seq[(Symbol, Any)], msgsProv: MessagesProvider): BSMultifieldInfo = {
+    def apply(
+      fields: Seq[Field],
+      globalArguments: Seq[(Symbol, Any)],
+      fieldsArguments: Seq[(Symbol, Any)],
+      msgsProv: MessagesProvider
+    ): BSMultifieldInfo = {
       new BSMultifieldInfo(fields, globalArguments, fieldsArguments, msgsProv)
     }
   }
 
-  /**
-   * Custom BSFieldConstructor for the library. Every BSFieldConstructor must extend this functionality.
-   */
+  /** Custom BSFieldConstructor for the library. Every BSFieldConstructor must extend this functionality.
+    */
   trait BSFieldConstructor[F <: BSFieldInfo] {
     /* Renders the corresponding template of the field constructor */
     def apply(fieldInfo: F, inputHtml: Html)(implicit msgsProv: MessagesProvider): Html
@@ -183,29 +212,30 @@ package object bs {
     def apply(contentHtml: Html, argsMap: Map[Symbol, Any])(implicit msgsProv: MessagesProvider): Html
   }
 
-  /**
-   * Renders an input field with its corresponding wrapper using the BSFieldConstructor.
-   * - fieldInfo: a BSFieldInfo with all the information about the field.
-   * - inputDef: function that returns a Html from the BSFieldInfo.
-   */
+  /** Renders an input field with its corresponding wrapper using the BSFieldConstructor.
+    *   - fieldInfo: a BSFieldInfo with all the information about the field.
+    *   - inputDef: function that returns a Html from the BSFieldInfo.
+    */
   def inputFormField[F <: BSFieldInfo](fieldInfo: F)(inputDef: F => Html)(implicit fc: BSFieldConstructor[F]) =
     fc(fieldInfo, inputDef(fieldInfo))(fieldInfo.msgsProv)
 
-  /**
-   * Renders a fake field constructor using the BSFieldConstructor.
-   * - args: list of available arguments for the helper and the form-group
-   * - contentDef: function that returns a Html from a map of arguments
-   */
-  def freeFormField[F <: BSFieldInfo](args: Seq[(Symbol, Any)])(contentDef: Map[Symbol, Any] => Html)(implicit fc: BSFieldConstructor[F], msgsProv: MessagesProvider) = {
+  /** Renders a fake field constructor using the BSFieldConstructor.
+    *   - args: list of available arguments for the helper and the form-group
+    *   - contentDef: function that returns a Html from a map of arguments
+    */
+  def freeFormField[F <: BSFieldInfo](
+    args: Seq[(Symbol, Any)]
+  )(contentDef: Map[Symbol, Any] => Html)(implicit fc: BSFieldConstructor[F], msgsProv: MessagesProvider) = {
     val argsWithoutNones = Args.withoutNones(args)
     fc(contentDef(Args.inner(argsWithoutNones).toMap), argsWithoutNones.toMap)(msgsProv)
   }
 
-  /**
-   * Renders a multi-field constructor using the BSFieldConstructor.
-   * - fieldInfo: a BSMultifieldInfo with all the information about the fields.
-   * - contentDef: function that returns a Html from the BSMultifieldInfo
-   */
-  def multifieldFormField[F <: BSFieldInfo, M <: BSMultifieldInfo](multifieldInfo: M)(contentDef: M => Html)(implicit fc: BSFieldConstructor[F]) =
+  /** Renders a multi-field constructor using the BSFieldConstructor.
+    *   - fieldInfo: a BSMultifieldInfo with all the information about the fields.
+    *   - contentDef: function that returns a Html from the BSMultifieldInfo
+    */
+  def multifieldFormField[F <: BSFieldInfo, M <: BSMultifieldInfo](multifieldInfo: M)(contentDef: M => Html)(implicit
+    fc: BSFieldConstructor[F]
+  ) =
     freeFormField(multifieldInfo.globalArgs)(_ => contentDef(multifieldInfo))(fc, multifieldInfo.msgsProv)
 }

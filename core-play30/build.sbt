@@ -17,13 +17,7 @@ libraryDependencies := libraryDependencies.value.filterNot(m => m.name == "twirl
   playCore % "provided"
 )
 
-//scalariformPreferences := scalariformPreferences.value
-//  .setPreference(AlignSingleLineCaseStatements, true)
-//  .setPreference(DoubleIndentConstructorArguments, true)
-//  .setPreference(DanglingCloseParenthesis, Preserve)
-
-
-//PlayKeys.playOmnidoc := false
+scalafmtOnCompile := true
 
 //*******************************
 // Maven settings
@@ -37,7 +31,7 @@ organization := "com.adrianhurt"
 
 description := "This is a collection of input helpers and field constructors for Play Framework to render Bootstrap HTML code."
 
-import xerial.sbt.Sonatype._
+import xerial.sbt.Sonatype.*
 sonatypeProjectHosting := Some(GitHubHosting("playframework", "play-bootstrap", "contact@playframework.com"))
 
 homepage := Some(url("http://playframework.github.io/play-bootstrap"))

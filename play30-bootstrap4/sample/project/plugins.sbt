@@ -7,4 +7,4 @@ addSbtPlugin("com.github.sbt" % "sbt-coffeescript" % "2.0.1")
 
 addSbtPlugin("com.github.sbt" % "sbt-less" % "2.0.1")
 
-//addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.2")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
